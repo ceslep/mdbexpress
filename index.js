@@ -2,20 +2,12 @@ import { readFileSync } from "fs";
 import express from 'express';
 import MDBReader from "mdb-reader";
 
+const BloodCell=process.argv[2];
 const app = express();
 app.use(express.json());
 
-const buffer = readFileSync("BloodCell.mdb");
+const buffer = readFileSync(BloodCell);
 const reader = new MDBReader(buffer);
-
-/* const tables=reader.getTableNames(); // ['Cats', 'Dogs', 'Cars']
-console.log(tables); */
-
-/*  const table = reader.getTable("Person");
-/* const columns=table.getColumnNames(); // ['id', 'name', 'color']
-console.log(columns); */
-//const data=table.getData();
-//console.log(data.filter(dato=>dato.TestDate=='2024-05-07' && dato.SampleNo=='1004517098'));  */
 
 
 const items = [
@@ -43,36 +35,46 @@ const items = [
 
 
 const units = [{ key: "WBC", unit: "10^3/uL" }, { key: "RBC", unit: "10^6/uL" }, { key: "HGB", unit: "g/dL" }, { key: "MCHC", unit: "g/dL" }, { key: "HCT", unit: "%" }, { key: "PLT", unit: "10^3/uL" }, { key: "PCT", unit: "%" }];
-app.post('/', (req, res) => {
+app.post('/dataHemat', (req, res) => {
 
-    const { identificacion, fecha } = req.body;
-    const table = reader.getTable("Person");
-    const data = table.getData();
-    const datos = data.filter(dato => dato.TestDate == fecha && dato.SampleNo == identificacion);
-    let hdatos = {};
-    let refs = datos[0].RefText;
-    refs = refs.split(",");
-    let idx = 0;
-    Object.keys(datos[0]).forEach((key, index, array) => {
+    try {
+        const { identificacion, fecha } = req.body;
+        console.clear();
+        const fechahora=new Date();
+        console.log(`Importando:${fechahora}`);
+        console.log(req.body);
+        const table = reader.getTable("Person");
+        const data = table.getData();
+        const datos = data.filter(dato => dato.TestDate == fecha && dato.SampleNo == identificacion);
 
-        let idx = items.findIndex((item) => item.key === key);
-        let unit="";
-        let idu=0;
-        if(idx>=0){
+        let hdatos = {};
+        let refs = datos[0].RefText;
+        refs = refs.split(",");
+        let idx = 0;
+        Object.keys(datos[0]).forEach((key, index, array) => {
 
-            idu=units.findIndex((unit)=>unit.key==items[idx].key);
-            if (idu>=0) unit=units[idu].unit;
-        }
-        if (idx >= 0) {
-            const value=datos[0][key];
-            const lvalue=value.replace(/L/g, "");
-            const dt = JSON.parse(`{"${items[idx].newkey}":"${lvalue.replace(/-/g, "")} ${unit} Ref. ${refs[idx]}"}`);
-            hdatos = { ...hdatos, ...dt };
-            idx++;
-        }
-    });
-    console.log(hdatos);
-    res.json(hdatos);
+            let idx = items.findIndex((item) => item.key === key);
+            let unit = "";
+            let idu = 0;
+            if (idx >= 0) {
+
+                idu = units.findIndex((unit) => unit.key == items[idx].key);
+                if (idu >= 0) unit = units[idu].unit;
+            }
+            if (idx >= 0) {
+                const value = datos[0][key];
+                const lvalue = value.replace(/L/g, "");
+                const dt = JSON.parse(`{"${items[idx].newkey}":"${lvalue.replace(/-/g, "")} ${unit} Ref. ${refs[idx]}"}`);
+                hdatos = { ...hdatos, ...dt };
+                idx++;
+            }
+        });
+       
+        console.log(hdatos);
+        res.json(hdatos);
+    } catch (e) {
+        res.json({ "e": e });
+    }
 
 });
 
