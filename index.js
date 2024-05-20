@@ -47,7 +47,7 @@ try {
         const table = reader.getTable("Person");
         const data = table.getData();
         const datos = data.filter(dato => dato.TestDate == fecha && dato.SampleNo == identificacion);
-
+        console.log(datos);    
         let hdatos = {};
         let refs = datos[0].RefText;
 	refs=items.map(i=>i.ref);
@@ -91,6 +91,7 @@ try {
 
 app.post('/dataHemat', (req, res) => {
     const { identificacion, fecha } = req.body;
+    console.log(req.body);
     const datos=getData(identificacion,fecha);
     console.log(datos);
     res.json(datos);
@@ -100,5 +101,5 @@ app.post('/dataHemat', (req, res) => {
 //console.log(getData("75039536","2024-05-15"));
 
 app.listen(3000, () => {
-    console.log('Server listening on port 3000');
+    console.log('Server listening on port 3000 hmt');
 });
