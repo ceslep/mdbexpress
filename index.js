@@ -47,7 +47,6 @@ try {
         const table = reader.getTable("Person");
         const data = table.getData();
         const datos = data.filter(dato => dato.TestDate == fecha && dato.SampleNo == identificacion);
-        console.log(datos);    
         let hdatos = {};
         let refs = datos[0].RefText;
 	refs=items.map(i=>i.ref);

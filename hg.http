@@ -1,7 +1,7 @@
-POST http://localhost:3000 HTTP/1.1
+POST http://localhost:3000/dataHemat HTTP/1.1
 content-type: application/json
 
 {
-    "identificacion": "1004517098",
-    "fecha": "2024-05-07"
+    "identificacion": "75039536",
+    "fecha": "2024-05-15"
 }
